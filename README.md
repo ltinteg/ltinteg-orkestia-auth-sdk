@@ -4,9 +4,13 @@
 
 ## Install
 
-```bash
-npm i @orkestia/auth
-```
+> Early access — not yet on npm. Install from this repo (it builds on install):
+>
+> ```bash
+> npm i github:ltinteg/ltinteg-orkestia-auth-sdk
+> ```
+>
+> `npm i @orkestia/auth` will work once published. See the [roadmap](./ROADMAP.md).
 
 ## Quickstart
 

@@ -1,19 +1,33 @@
 {
   "name": "@orkestia/auth",
   "version": "0.0.1",
-  "description": "Sign in with Orkestia — browser PKCE auth for apps built on the Orkestia platform.",
+  "description": "Sign in with Orkestia \u2014 browser PKCE auth for apps built on the Orkestia platform.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "prepare": "npm run build"
   },
-  "keywords": ["orkestia", "auth", "oidc", "pkce", "sign-in"],
+  "keywords": [
+    "orkestia",
+    "auth",
+    "oidc",
+    "pkce",
+    "sign-in"
+  ],
   "license": "MIT",
   "devDependencies": {
     "tsup": "^8.0.0",
