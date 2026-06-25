@@ -8,7 +8,7 @@ self-serve and production-grade.
 - [ ] **Refresh tokens** — silent session renewal past the access-token TTL (today the session ends at expiry and the user re-authenticates).
 - [ ] **Discovery** — publish `/.well-known/openid-configuration` so standard OIDC tooling (and AI agents) can wire from a single URL.
 - [ ] **Provisioning bundle** — provisioning returns the full client config (issuer + authorize/token/jwks URLs) alongside the `client_key`, so an integration can be wired without reading docs.
-- [ ] **Automatic origin allow-listing** — the `/authorize` and `/token` endpoints accept any of a client's registered redirect-URI origins automatically.
+- [x] **Automatic origin allow-listing** — the `/authorize` and `/token` endpoints accept any of a client's registered redirect-URI origins automatically (no env change to onboard a new app).
 
 ## SDK
 - [ ] **Framework adapters** — `useOrkestiaAuth()` React hook, Next.js route helpers, TanStack Start.
