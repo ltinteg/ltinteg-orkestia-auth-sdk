@@ -6,7 +6,7 @@ self-serve and production-grade.
 
 ## Auth platform (server side)
 - [ ] **Refresh tokens** — silent session renewal past the access-token TTL (today the session ends at expiry and the user re-authenticates).
-- [ ] **Discovery** — publish `/.well-known/openid-configuration` so standard OIDC tooling (and AI agents) can wire from a single URL.
+- [x] **Discovery** — `https://login.orkestia.dev/.well-known/openid-configuration` publishes the authorize/token/jwks endpoints, PKCE method, and signing alg. One fetch → the contract.
 - [ ] **Provisioning bundle** — provisioning returns the full client config (issuer + authorize/token/jwks URLs) alongside the `client_key`, so an integration can be wired without reading docs.
 - [x] **Automatic origin allow-listing** — the `/authorize` and `/token` endpoints accept any of a client's registered redirect-URI origins automatically (no env change to onboard a new app).
 
