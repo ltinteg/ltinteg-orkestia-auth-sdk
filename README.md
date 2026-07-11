@@ -39,6 +39,7 @@ That's the whole integration. `signIn()` builds a PKCE challenge and redirects t
 | `signIn()` | Begin PKCE: redirect to the hosted login |
 | `handleCallback()` | Exchange the `?code` for a token; returns `OrkestiaSession \| null` |
 | `getSession()` | Current stored session (claims decoded; expiry checked) |
+| `renew()` | Silently refresh the access token (hidden `prompt=none`); throws `OrkestiaLoginRequiredError` if the session is gone |
 | `signOut()` | Clear the local session |
 | `verify(token)` | Verify the RS256 signature against the published JWKS (returns claims) |
 | `register(email, password)` | Create an end-user account (does not consume a seat) |
@@ -52,7 +53,40 @@ createOrkestiaAuth({
   identityApi: 'https://workflow-api.orkestia.dev', // default
   redirectUri: location.origin + '/',            // default; must be registered
   storage: sessionStorage,                       // default
+  silentRedirectUri: location.origin + '/',      // default: redirectUri; must be registered
+  autoRenew: true,                               // background refresh before expiry (default)
+  renewSkewSeconds: 60,                          // refresh this long before exp (default)
+  silentTimeoutMs: 10000,                        // give up on a silent renewal after this (default)
+  onRequiresLogin: (err) => auth.signIn(),       // called when the session can't be renewed
 })
+```
+
+## Silent session renewal
+
+Access tokens are short-lived. Rather than force an hourly re-login, the SDK
+renews transparently: with `autoRenew` on (the default) it schedules a refresh
+`renewSkewSeconds` before the token expires and runs a **hidden OIDC
+`prompt=none` authorization** against `login.orkestia.dev` in an offscreen
+iframe. The identity tenant's session cookie carries the long-lived state, so a
+still-valid session yields a fresh access token with no UI and no full re-login.
+Call `renew()` yourself to force one (e.g. right before a sensitive call).
+
+```ts
+try {
+  const session = await auth.renew()   // fresh token, transparently
+} catch (err) {
+  // OrkestiaLoginRequiredError: session revoked/expired — must fully re-authenticate
+  await auth.signIn()
+}
+```
+
+When the session was revoked (`identity.end-user.session.revoke`) or expired,
+`prompt=none` returns `login_required`; `renew()` then **clears the local
+session, fires `onRequiresLogin`, throws `OrkestiaLoginRequiredError`, and does
+not retry** — so a dead session never loops. Import the error type to branch on it:
+
+```ts
+import { OrkestiaLoginRequiredError } from '@orkestia/auth'
 ```
 
 ## The contract it implements
