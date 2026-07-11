@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node --test \"test/*.test.mjs\"",
+    "test": "npm run build && node --test test/*.test.mjs",
     "lint": "eslint src",
     "prepare": "npm run build"
   },
