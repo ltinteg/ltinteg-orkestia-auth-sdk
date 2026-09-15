@@ -152,6 +152,22 @@ test("signIn stores PKCE verifier/state and redirects to hosted authorize", asyn
   assert.notEqual(redirect.searchParams.get("code_challenge"), verifier);
 });
 
+test("orkestia_signin=1 starts PKCE when there is no session", async () => {
+  const storage = createStorage();
+  const { location: loc } = installBrowserGlobals({ search: "?orkestia_signin=1", pathname: "/" });
+  createOrkestiaAuth({
+    clientKey: "orkestia_client",
+    loginUrl: "https://login.example/",
+    redirectUri: "https://app.example/",
+    autoRenew: false,
+    storage,
+  });
+  await new Promise((r) => setTimeout(r, 30));
+  const redirect = new URL(loc.href);
+  assert.equal(`${redirect.origin}${redirect.pathname}`, "https://login.example/authorize");
+  assert.ok(storage.getItem(K_VERIFIER));
+});
+
 test("handleCallback exchanges code for a session and clears transient PKCE state", async (t) => {
   const storage = createStorage({
     [K_VERIFIER]: "verifier-1",

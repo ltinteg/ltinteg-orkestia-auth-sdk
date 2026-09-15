@@ -391,6 +391,15 @@ export function createOrkestiaAuth(config: OrkestiaAuthConfig) {
     if (existing) scheduleRenew(existing.claims)
   }
 
+  // Account-portal launch: login.orkestia.dev/account appends ?orkestia_signin=1
+  // so an unauthenticated app boot starts PKCE instead of showing its own form.
+  if (typeof location !== 'undefined' && typeof location.search === 'string') {
+    const boot = new URLSearchParams(location.search)
+    if (boot.get('orkestia_signin') === '1' && !boot.get('code') && !getSession()) {
+      void signIn()
+    }
+  }
+
   return { signIn, handleCallback, getSession, signOut, verify, register, renew }
 }
 

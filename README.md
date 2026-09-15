@@ -32,6 +32,8 @@ auth.signOut()
 
 That's the whole integration. `signIn()` builds a PKCE challenge and redirects to the hosted login (`login.orkestia.dev`); after the user authenticates, Orkestia returns to your `redirect_uri` with a one-time `?code`, and `handleCallback()` exchanges it for an **RS256 JWT** at the identity API. The token never appears in a URL.
 
+Boot the SDK on every page (including `/`). If the account portal opens your app with `?orkestia_signin=1` and there is no local session, the SDK starts `signIn()` itself so the hosted login can complete SSO from the IdP cookie.
+
 ## API
 
 | Method | Purpose |
