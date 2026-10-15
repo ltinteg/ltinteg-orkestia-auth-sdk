@@ -46,6 +46,13 @@ Boot the SDK on every page (including `/`). If the account portal opens your app
 | `verify(token)` | Verify the RS256 signature against the published JWKS (returns claims) |
 | `register(email, password)` | Create an end-user account (does not consume a seat) |
 
+Identity workspace helpers (pure, no network): `IDENTITY_WORKFLOW_TYPES` names the
+`identity.end-user.*` / `identity.app-organization.*` workflows an app starts for
+workspace (app-organization) membership, and `buildEndUserOrganization*Input` /
+`buildAppOrganization*Input` / `buildAppSetOrgOwnedInput` turn camelCase args into
+their snake_case inputs. The matching output shapes (`EndUserWhoamiOutput`,
+`EndUserOrganizationQueryOutput`, …) are exported as types.
+
 ## Config
 
 ```ts
