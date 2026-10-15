@@ -73,6 +73,215 @@ export interface OrkestiaSession {
   endUserUuid?: string
 }
 
+// Identity workspace workflow contract: the end-user / app-organization
+// workflow type names and their snake_case input builders, so apps (and the
+// Orkestia Builder Framework, which vendors this file) start them without
+// hand-spelling the wire shape.
+export const IDENTITY_WORKFLOW_TYPES = {
+  endUserWhoami: 'identity.end-user.whoami',
+  endUserOrganizationQuery: 'identity.end-user.organization.query',
+  endUserOrganizationGet: 'identity.end-user.organization.get',
+  endUserOrganizationSwitch: 'identity.end-user.organization.switch',
+  appOrganizationCreate: 'identity.app-organization.create',
+  appOrganizationQuery: 'identity.app-organization.query',
+  appOrganizationAddMember: 'identity.app-organization.add-member',
+  appOrganizationInvite: 'identity.app-organization.invite',
+  appOrganizationAssignRole: 'identity.app-organization.assign-role',
+  appSetOrgOwned: 'identity.app.set-org-owned',
+} as const
+
+export interface ActiveOrganizationRef {
+  app_organization_uuid?: string
+  slug?: string
+  name?: string
+  kind?: string
+  role?: string
+  capabilities?: string[]
+  membership_status?: string
+  [k: string]: unknown
+}
+
+export interface EndUserWhoamiOutput {
+  end_user_uuid: string
+  identity_app_uuid: string
+  email: string
+  is_end_user: boolean
+  role?: string
+  capabilities?: string[]
+  active_organization?: ActiveOrganizationRef | null
+  reason?: string
+  failure_reason?: string
+}
+
+export interface EndUserOrganizationQueryOutput {
+  items: ActiveOrganizationRef[]
+  total: number
+  reason?: string
+  failure_reason?: string
+}
+
+export interface EndUserOrganizationGetArgs {
+  appOrganizationUuid: string
+}
+
+export interface EndUserOrganizationGetOutput {
+  app_organization_ref?: ActiveOrganizationRef
+  role?: string
+  capabilities?: string[]
+  membership_status?: string
+  kind?: string
+  reason?: string
+  failure_reason?: string
+}
+
+export interface EndUserOrganizationSwitchArgs {
+  appOrganizationUuid: string
+}
+
+export interface EndUserOrganizationSwitchOutput {
+  app_organization_ref?: ActiveOrganizationRef
+  active_app_organization_uuid?: string
+  membership_status?: string
+  reason?: string
+  failure_reason?: string
+}
+
+export interface AppOrganizationCreateArgs {
+  identityAppUuid: string
+  name: string
+  slug: string
+  kind?: string
+  metadata?: Record<string, unknown>
+}
+
+export interface AppOrganizationQueryArgs {
+  identityAppUuid: string
+}
+
+export interface AppOrganizationMemberArgs {
+  identityAppUuid: string
+  appOrganizationUuid: string
+  endUserUuid?: string
+  email?: string
+  groupSlug?: string
+}
+
+export interface AppOrganizationAssignRoleArgs {
+  identityAppUuid: string
+  appOrganizationUuid: string
+  endUserUuid: string
+  groupSlug: string
+  force?: boolean
+}
+
+export interface AppSetOrgOwnedArgs {
+  identityAppUuid: string
+  orgOwnedEnabled: boolean
+}
+
+export interface AppOrganizationRef {
+  app_organization_uuid?: string
+  slug?: string
+  name?: string
+  kind?: string
+  [k: string]: unknown
+}
+
+export interface AppOrganizationQueryOutput {
+  items: AppOrganizationRef[]
+  total: number
+  identity_app_uuid: string
+  reason?: string
+  failure_reason?: string
+}
+
+export interface AppOrganizationCreateOutput {
+  app_organization_uuid: string
+  slug: string
+  name: string
+  kind?: string
+  created: boolean
+  identity_app_uuid: string
+  reason?: string
+  failure_reason?: string
+}
+
+export interface AppOrganizationMemberOutput {
+  app_organization_uuid: string
+  end_user_uuid?: string
+  group_slug?: string
+  membership_status?: string
+  created?: boolean
+  active_bootstrapped?: boolean
+  identity_app_uuid: string
+  reason?: string
+  failure_reason?: string
+}
+
+export interface AppOrganizationAssignRoleOutput {
+  app_organization_uuid: string
+  end_user_uuid: string
+  previous_role?: string
+  new_role?: string
+  updated_at?: string
+  group_slug: string
+  identity_app_uuid: string
+  reason?: string
+  failure_reason?: string
+}
+
+export function buildEndUserOrganizationGetInput(args: EndUserOrganizationGetArgs): Record<string, unknown> {
+  return { app_organization_uuid: args.appOrganizationUuid }
+}
+
+export function buildEndUserOrganizationSwitchInput(args: EndUserOrganizationSwitchArgs): Record<string, unknown> {
+  return { app_organization_uuid: args.appOrganizationUuid }
+}
+
+export function buildAppOrganizationCreateInput(args: AppOrganizationCreateArgs): Record<string, unknown> {
+  const input: Record<string, unknown> = {
+    identity_app_uuid: args.identityAppUuid,
+    name: args.name,
+    slug: args.slug,
+  }
+  if (args.kind) input.kind = args.kind
+  if (args.metadata) input.metadata = args.metadata
+  return input
+}
+
+export function buildAppOrganizationQueryInput(args: AppOrganizationQueryArgs): Record<string, unknown> {
+  return { identity_app_uuid: args.identityAppUuid }
+}
+
+export function buildAppOrganizationMemberInput(args: AppOrganizationMemberArgs): Record<string, unknown> {
+  const input: Record<string, unknown> = {
+    identity_app_uuid: args.identityAppUuid,
+    app_organization_uuid: args.appOrganizationUuid,
+  }
+  if (args.endUserUuid) input.end_user_uuid = args.endUserUuid
+  if (args.email) input.email = args.email
+  if (args.groupSlug) input.group_slug = args.groupSlug
+  return input
+}
+
+export function buildAppOrganizationAssignRoleInput(args: AppOrganizationAssignRoleArgs): Record<string, unknown> {
+  const input: Record<string, unknown> = {
+    identity_app_uuid: args.identityAppUuid,
+    app_organization_uuid: args.appOrganizationUuid,
+    end_user_uuid: args.endUserUuid,
+    group_slug: args.groupSlug,
+  }
+  if (args.force !== undefined) input.force = args.force
+  return input
+}
+
+export function buildAppSetOrgOwnedInput(args: AppSetOrgOwnedArgs): Record<string, unknown> {
+  return {
+    identity_app_uuid: args.identityAppUuid,
+    org_owned_enabled: args.orgOwnedEnabled,
+  }
+}
+
 const DEFAULT_LOGIN = 'https://login.orkestia.dev'
 const DEFAULT_API = 'https://workflow-api.orkestia.dev'
 const K_VERIFIER = 'orkestia.pkce.verifier'
@@ -84,11 +293,14 @@ function b64url(bytes: ArrayBuffer): string {
   for (const b of new Uint8Array(bytes)) s += String.fromCharCode(b)
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
-function fromB64url(s: string): Uint8Array<ArrayBuffer> {
+// The return type is inferred on purpose. `new Uint8Array(length)` is backed by a
+// plain ArrayBuffer (not ArrayBufferLike), so under TS 5.7+ generic typed arrays
+// it infers `Uint8Array<ArrayBuffer>` and stays assignable to WebCrypto's
+// BufferSource. Spelling that generic out would break TS <= 5.6 consumers that
+// vendor this file (TS2315: 'Uint8Array' is not generic).
+function fromB64url(s: string) {
   const pad = s.replace(/-/g, '+').replace(/_/g, '/')
   const bin = atob(pad + '='.repeat((4 - (pad.length % 4)) % 4))
-  // Allocate over a plain ArrayBuffer (not ArrayBufferLike) so the result stays
-  // assignable to WebCrypto's BufferSource under TS 5.7+ generic typed arrays.
   const out = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
   return out
