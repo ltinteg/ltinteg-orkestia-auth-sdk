@@ -6,12 +6,25 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Supersede in-flight runs for the same ref: a second push used to leave the
+# first burning to completion for a commit nobody would merge. Cancels
+# pull_request only -- a push to the default branch is the record of what
+# shipped and is never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Self-hosted, like the other 185 repos in this org. GitHub-hosted jobs are
+    # refused outright -- "The job was not started because an Actions budget is
+    # preventing further use" -- so this workflow could not run at all. Same
+    # label set and toolchain already green on ltinteg-app-staff, -cockpit,
+    # -lumen and ltinteg-docs.
+    runs-on: [self-hosted, linux, x64, orkestia]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
